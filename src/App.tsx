@@ -1,67 +1,91 @@
 import React, { useState } from 'react';
 import { 
-  Truck, Shield, Award, ArrowRight, Calendar, DollarSign, Lock, 
+  Shield, Award, ArrowRight, Calendar, DollarSign, Lock, 
   ChevronRight, CheckCircle2, Sparkles, Layers, Terminal, Server,
-  AlertCircle, Check, Phone, Plane, Thermometer, Compass, Fuel, Gauge
+  AlertCircle, Check, Phone, Plane, Thermometer, Compass, Fuel, Gauge,
+  Clock, Truck, Box, FileText, CheckSquare, Wrench, AlertTriangle, UserCheck
 } from 'lucide-react';
 import { AdminPortalModal } from './AdminPortalModal.tsx';
 
-interface ShowcaseItem {
+interface CranePackage {
   id: string;
-  title: string;
-  subtitle: string;
-  rate: string;
-  status: string;
-  features: string[];
+  name: string;
+  capacityTons: number;
+  maxBoomLength: string;
+  maxTipHeight: string;
+  counterweight: string;
+  outriggerBase: string;
+  certNumber: string;
+  specs: {
+    engine: string;
+    linePull: string;
+    jibLength: string;
+    groundPressure: string;
+  };
+  liftChecklist: {
+    task: string;
+    verified: boolean;
+  }[];
   img: string;
 }
 
-const ITEMS: ShowcaseItem[] = [
+const CRANES: CranePackage[] = [
   {
-    "id": "CRANE-LTM-1500",
-    "title": "Liebherr LTM 1500-8.1 All-Terrain Mobile Crane",
-    "subtitle": "500-Tonne Capacity // 84m Telescopic Boom // Y-Guy Superlift",
-    "rate": "$4,200 / Shift + Rigging Crew",
-    "status": "CERTIFIED INSPECTED // READY",
-    "features": [
-      "CAD Ground Pressure Mat Modeling",
-      "Tandem Lift Capacity Coordination",
-      "VarioBase Variable Outrigger Base",
-      "ASME B30.5 Annual Certification Signed"
+    id: "CRANE-500",
+    name: "Liebherr LTM 1500-8.1 (500-Ton All-Terrain)",
+    capacityTons: 500,
+    maxBoomLength: "84 Meters (276 ft)",
+    maxTipHeight: "142 Meters (466 ft with Luffing Jib)",
+    counterweight: "165 Metric Tons",
+    outriggerBase: "10.0m x 9.6m Heavy Mat Footprint",
+    certNumber: "OSHA-NCCCO-2026-8819",
+    specs: {
+      engine: "Liebherr 8-Cylinder Turbo Diesel (680 HP)",
+      linePull: "126 kN High-Torque Hoist Winch",
+      jibLength: "91m Lattice Extension",
+      groundPressure: "4.8 Tons/m² with Steel Spreader Mats"
+    },
+    liftChecklist: [
+      { task: "Geotechnical Ground Bearing Capacity Survey Verified (> 50 PSI)", verified: true },
+      { task: "Overhead Powerline De-energization Permit on File", verified: true },
+      { task: "Rigging Hardware Magnetic Particle NDT Certificate Valid", verified: true },
+      { task: "FAA Obstruction Evaluation Light Beacon Active", verified: true },
+      { task: "Certified Rigging Master Level II Onsite Signoff", verified: true }
     ],
-    "img": "https://images.unsplash.com/photo-1517524008697-84bbe3c3fd98"
+    img: "https://images.unsplash.com/photo-1541888946425-d0fbb186c5f7"
   },
   {
-    "id": "CRANE-LR-1300",
-    "title": "Liebherr LR 1300.1 SX Heavy Crawler Crane",
-    "subtitle": "300-Tonne Crawler // Wind Turbine & Refinery Module Installation",
-    "rate": "$18,500 / Week Mobilized",
-    "status": "ON-SITE MONITORED",
-    "features": [
-      "Crane Planner 2.0 3D Lift Simulation",
-      "Boma Ground Bearing Mats Included",
-      "Heavy-Duty Derrick Boom Attachment",
-      "Telemetry Load Moment Computer"
+    id: "CRANE-300",
+    name: "Grove GMK6300L-1 (350-Ton All-Terrain)",
+    capacityTons: 350,
+    maxBoomLength: "80 Meters (262 ft Main Boom)",
+    maxTipHeight: "120 Meters (394 ft)",
+    counterweight: "92.5 Metric Tons",
+    outriggerBase: "8.7m x 8.5m Outrigger Spread",
+    certNumber: "OSHA-NCCCO-2026-4402",
+    specs: {
+      engine: "Mercedes-Benz OM473LA (580 HP)",
+      linePull: "110 kN Line Pull",
+      jibLength: "37m Hydraulic Luffing Jib",
+      groundPressure: "3.9 Tons/m² on Timber Mats"
+    },
+    liftChecklist: [
+      { task: "Wind Velocity Telemetry < 20 Knots at Tip Height", verified: true },
+      { task: "Tandem Lift Equalizer Beam Load Test Complete", verified: true },
+      { task: "NCCCO Operator Physical & Licensure Cross-Checked", verified: true },
+      { task: "Emergency Stop System Functional Test Passed", verified: true }
     ],
-    "img": "https://images.unsplash.com/photo-1518709268805-4e9042af9f23"
-  },
-  {
-    "id": "RIG-TEAM-ALPHA",
-    "title": "Master Rigging & Heavy Tandem Lift Crew",
-    "subtitle": "NCCCO Certified Riggers // Level II Signalpersons // PE Signed Plan",
-    "rate": "Turnkey Lift Execution Team",
-    "status": "DISPATCH READY // CREW #4",
-    "features": [
-      "Modulift Spreader Beams (100T-400T)",
-      "Calibrated Load Cells with Live Telemetry",
-      "Job Safety Analysis (JSA) Digital Gate",
-      "Synthetic Kevlar & Wire Rope Slings"
-    ],
-    "img": "https://images.unsplash.com/photo-1581094794329-c8112a89af12"
+    img: "https://images.unsplash.com/photo-1581094794329-c8112a89af12"
   }
 ];
 
 export default function App() {
+  const [selectedCrane, setSelectedCrane] = useState<CranePackage>(CRANES[0]);
+  const [checklist, setChecklist] = useState(selectedCrane.liftChecklist);
+  const [liftWeightInput, setLiftWeightInput] = useState(140);
+  const [liftRadiusInput, setLiftRadiusInput] = useState(32);
+  const [stampedSuccess, setStampedSuccess] = useState(false);
+
   const [isAdminOpen, setIsAdminOpen] = useState(
     typeof window !== 'undefined' && (
       window.location.search.includes('admin') || 
@@ -69,257 +93,215 @@ export default function App() {
       window.location.hash === '#admin'
     )
   );
-  const [selectedItem, setSelectedItem] = useState(ITEMS[0].id);
-  const [inquiryName, setInquiryName] = useState('');
-  const [inquiryPhone, setInquiryPhone] = useState('');
-  const [submitted, setSubmitted] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!inquiryName || !inquiryPhone) return;
-    setSubmitted(true);
-    setTimeout(() => {
-      setSubmitted(false);
-      setInquiryName('');
-      setInquiryPhone('');
-    }, 4000);
+  const toggleCheck = (idx: number) => {
+    const updated = [...checklist];
+    updated[idx].verified = !updated[idx].verified;
+    setChecklist(updated);
   };
 
+  const handleSelectCrane = (c: CranePackage) => {
+    setSelectedCrane(c);
+    setChecklist(c.liftChecklist);
+    setStampedSuccess(false);
+  };
+
+  // Capacity calculation based on radius
+  const maxAllowableCapacity = Math.round(selectedCrane.capacityTons * (1 - (liftRadiusInput / 100)));
+  const loadPercentage = Math.round((liftWeightInput / maxAllowableCapacity) * 100);
+
   return (
-    <div className="min-h-screen bg-[#0A0A0B] text-zinc-100 font-sans selection:bg-amber-500/20 selection:text-amber-400">
-      {/* Header */}
-      <header className="sticky top-0 z-40 bg-[#0A0A0B]/90 backdrop-blur-md border-b border-zinc-800/80 px-6 py-4">
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500 to-amber-700 flex items-center justify-center text-zinc-950 font-extrabold shadow-lg shadow-amber-600/20">
-              <Truck className="w-5 h-5 text-zinc-950" />
-            </div>
-            <div>
-              <span className="text-xs font-mono uppercase tracking-widest text-amber-500 font-semibold">Heavy Lift Engineering & Certified Crane Rigging OS</span>
-              <h1 className="text-lg font-bold tracking-tight text-white leading-none">CRANE & RIGGING OPS OS</h1>
-            </div>
-          </div>
+    <div className="min-h-screen bg-[#0A0A0C] text-zinc-100 flex flex-col font-sans selection:bg-amber-500 selection:text-black">
+      {/* Top Telemetry Header */}
+      <header className="border-b border-zinc-800 bg-[#0E0F14] px-6 py-4 flex flex-wrap items-center justify-between gap-4 sticky top-0 z-30 font-mono text-sm">
+        <div className="flex items-center gap-3">
+          <div className="w-3 h-3 rounded-full bg-amber-500 animate-pulse" />
+          <span className="font-bold tracking-wider text-amber-400 flex items-center gap-2 text-base">
+            <Wrench size={18} /> TITAN RIGGING // CRANE LOAD CHART & LIFT PLAN SPEC PANEL
+          </span>
+          <span className="text-zinc-600">|</span>
+          <span className="text-zinc-400 uppercase text-xs">ARCHETYPE E: SPLIT-SCREEN SPEC & PROOF PANEL</span>
+        </div>
 
-          <div className="hidden md:flex items-center gap-8 text-xs font-medium uppercase tracking-wider text-zinc-400">
-            <a href="#inventory" className="hover:text-amber-400 transition">Fleet Roster</a>
-            <a href="#telemetry" className="hover:text-amber-400 transition">Telematics</a>
-            <a href="#specs" className="hover:text-amber-400 transition">Compliance</a>
-            <a href="#dispatch" className="hover:text-amber-400 transition">Book Dispatch</a>
+        <div className="flex items-center gap-4">
+          <div className="hidden sm:flex items-center gap-2 text-xs font-mono text-emerald-400">
+            <Shield size={14} />
+            <span>OSHA 1926.1400 CERTIFIED LIFT PLANNER VAULT</span>
           </div>
-
-          <div className="flex items-center gap-3">
-            <button
-              onClick={() => setIsAdminOpen(true)}
-              className="px-4 py-2 rounded-lg bg-zinc-900 border border-amber-500/40 text-amber-400 hover:bg-amber-500/10 text-xs font-mono uppercase tracking-wider transition flex items-center gap-2"
-            >
-              <Lock className="w-3.5 h-3.5" />
-              <span>[ DISPATCH PASS ]</span>
-            </button>
-          </div>
+          <button 
+            onClick={() => setIsAdminOpen(true)}
+            className="px-3.5 py-1.5 bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 border border-amber-500/40 rounded-lg text-xs font-mono font-bold transition-all"
+          >
+            [ MASTER RIGGER PASS ]
+          </button>
         </div>
       </header>
 
-      {/* Hero */}
-      <section className="relative pt-20 pb-24 px-6 overflow-hidden border-b border-zinc-800">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(245,158,11,0.15),rgba(255,255,255,0))]"></div>
-        <div className="max-w-5xl mx-auto text-center relative z-10">
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-400 text-xs font-mono mb-6">
-            <Sparkles className="w-3.5 h-3.5" />
-            <span>COMMERCIAL FLEET ENGINE • 9.8 VERIFIED PRODUCTION GRADE</span>
+      {/* Split-Screen Container */}
+      <div className="flex-1 flex flex-col lg:flex-row overflow-hidden">
+        {/* Left Fixed Panel: Crane Visual Inspection & Load Radius */}
+        <section className="w-full lg:w-1/2 border-b lg:border-b-0 lg:border-r border-zinc-800 p-6 sm:p-8 bg-[#0D0E13] overflow-y-auto space-y-6">
+          <div className="flex justify-between items-center">
+            <div className="flex gap-2">
+              {CRANES.map(c => (
+                <button
+                  key={c.id}
+                  onClick={() => handleSelectCrane(c)}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-mono font-bold border transition-all ${
+                    selectedCrane.id === c.id
+                      ? 'bg-amber-500 text-black border-amber-500'
+                      : 'bg-zinc-900 border-zinc-800 text-zinc-400 hover:text-white'
+                  }`}
+                >
+                  {c.id}
+                </button>
+              ))}
+            </div>
+            <span className="text-xs font-mono text-zinc-400">CERT: {selectedCrane.certNumber}</span>
           </div>
 
-          <h2 className="text-4xl sm:text-6xl font-extrabold text-white tracking-tight leading-tight">
-            CRANE <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 to-yellow-500">& RIGGING OPS OS</span>
-          </h2>
-
-          <p className="mt-6 text-lg sm:text-xl text-zinc-400 max-w-3xl mx-auto leading-relaxed">
-            Engineered Lift Plans, Certified Rigger Dispatch & Jobsite Ops. High-utilization asset dispatch, real-time telemetry, and turnkey Supabase PostgreSQL database schemas.
-          </p>
-
-          <div className="mt-10 flex flex-wrap items-center justify-center gap-4">
-            <a
-              href="#dispatch"
-              className="px-8 py-3.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-zinc-950 font-bold text-sm tracking-wide transition shadow-lg shadow-amber-500/25 flex items-center gap-2"
-            >
-              <span>Instant Fleet Dispatch</span>
-              <ArrowRight className="w-4 h-4" />
-            </a>
-            <button
-              onClick={() => setIsAdminOpen(true)}
-              className="px-8 py-3.5 rounded-xl bg-zinc-900 border border-zinc-700 hover:border-amber-500/40 text-zinc-200 text-sm font-semibold transition flex items-center gap-2"
-            >
-              <span>Launch Supervisor OS</span>
-              <span className="text-amber-400 font-mono text-xs font-bold">[crane2026]</span>
-            </button>
+          <div className="relative aspect-[16/10] rounded-2xl overflow-hidden border border-zinc-800">
+            <img 
+              src={selectedCrane.img} 
+              alt={selectedCrane.name} 
+              className="w-full h-full object-cover" 
+            />
+            <div className="absolute bottom-4 left-4 bg-black/80 backdrop-blur-md px-4 py-2 rounded-xl border border-white/10 font-mono text-xs">
+              <span className="text-zinc-400 block text-[10px]">RATED LIFT CAPACITY</span>
+              <span className="text-2xl font-black text-amber-400">{selectedCrane.capacityTons} TONS</span>
+            </div>
           </div>
 
-          {/* Metrics Ticker */}
-          <div className="mt-16 grid grid-cols-2 sm:grid-cols-4 gap-4 max-w-4xl mx-auto text-left">
-            
-              <div key="MAX CAPACITY LIFT" className="p-4 rounded-xl bg-zinc-900/60 border border-zinc-800/80 backdrop-blur-sm">
-                <span className="text-xs font-semibold tracking-wider font-mono text-zinc-400 uppercase tracking-wider block">MAX CAPACITY LIFT</span>
-                <p className="text-lg sm:text-xl font-bold font-mono text-amber-400 mt-1">{"650 TONNES"}</p>
-              </div>
-            
-              <div key="CAD ENGINEERED PLANS" className="p-4 rounded-xl bg-zinc-900/60 border border-zinc-800/80 backdrop-blur-sm">
-                <span className="text-xs font-semibold tracking-wider font-mono text-zinc-400 uppercase tracking-wider block">CAD ENGINEERED PLANS</span>
-                <p className="text-lg sm:text-xl font-bold font-mono text-amber-400 mt-1">{"412 CERTIFIED"}</p>
-              </div>
-            
-              <div key="NCCCO RIGGER ROSTER" className="p-4 rounded-xl bg-zinc-900/60 border border-zinc-800/80 backdrop-blur-sm">
-                <span className="text-xs font-semibold tracking-wider font-mono text-zinc-400 uppercase tracking-wider block">NCCCO RIGGER ROSTER</span>
-                <p className="text-lg sm:text-xl font-bold font-mono text-amber-400 mt-1">{"64 OPERATORS"}</p>
-              </div>
-            
-              <div key="ASME B30 INCIDENT RATE" className="p-4 rounded-xl bg-zinc-900/60 border border-zinc-800/80 backdrop-blur-sm">
-                <span className="text-xs font-semibold tracking-wider font-mono text-zinc-400 uppercase tracking-wider block">ASME B30 INCIDENT RATE</span>
-                <p className="text-lg sm:text-xl font-bold font-mono text-amber-400 mt-1">{"0.00 ZERO"}</p>
-              </div>
-            
-          </div>
-        </div>
-      </section>
-
-      {/* Showcase Grid */}
-      <section id="inventory" className="py-20 px-6 max-w-7xl mx-auto">
-        <div className="flex flex-col md:flex-row md:items-end justify-between mb-12">
           <div>
-            <span className="text-xs font-mono text-amber-500 uppercase tracking-widest block mb-2">OPERATIONAL LINEUP</span>
-            <h3 className="text-3xl font-extrabold text-white">Featured Fleet & Priority Units</h3>
+            <h1 className="text-2xl sm:text-3xl font-black text-white">{selectedCrane.name}</h1>
+            <p className="text-sm text-zinc-400 mt-1">
+              Engineered for extreme structural heavy lifts, bridge girder placement, and high-altitude refinery vessels.
+            </p>
           </div>
-          <span className="text-sm text-zinc-400 mt-2 md:mt-0 font-mono">100% Inspected & Live Telematics Connected</span>
-        </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {ITEMS.map((item) => (
-            <div 
-              key={item.id}
-              className="group rounded-2xl bg-[#121214] border border-zinc-800 hover:border-amber-500/40 transition-all overflow-hidden flex flex-col shadow-xl"
-            >
-              <div className="relative h-56 overflow-hidden bg-zinc-900">
-                <img 
-                  src={item.img} 
-                  alt={item.title}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-[#121214] via-transparent to-transparent"></div>
-                <div className="absolute top-4 right-4 px-2.5 py-1 rounded bg-black/70 backdrop-blur-md border border-zinc-700 text-xs font-semibold font-mono font-bold text-amber-400">
-                  {item.status}
-                </div>
+          {/* Interactive Load Radius Calculator */}
+          <div className="bg-[#12141C] border border-zinc-800 p-5 rounded-2xl space-y-4 font-mono text-xs">
+            <div className="flex justify-between items-center text-sm font-bold text-white">
+              <span>Load Chart Simulation</span>
+              <span className={loadPercentage > 85 ? 'text-rose-400' : 'text-emerald-400'}>
+                {loadPercentage}% CRANE UTILIZATION
+              </span>
+            </div>
+
+            <div className="space-y-2">
+              <div className="flex justify-between text-zinc-400">
+                <span>Working Lift Radius (Meters)</span>
+                <span className="text-amber-400 font-bold">{liftRadiusInput} Meters</span>
               </div>
+              <input 
+                type="range"
+                min="10"
+                max="75"
+                value={liftRadiusInput}
+                onChange={e => setLiftRadiusInput(Number(e.target.value))}
+                className="w-full accent-amber-500" 
+              />
+            </div>
 
-              <div className="p-6 flex-1 flex flex-col justify-between">
-                <div>
-                  <span className="text-xs font-mono text-amber-400 uppercase tracking-wider block mb-1">{item.id}</span>
-                  <h4 className="text-xl font-bold text-white mb-2 leading-tight">{item.title}</h4>
-                  <p className="text-base text-zinc-200 leading-relaxed mb-4">{item.subtitle}</p>
+            <div className="space-y-2">
+              <div className="flex justify-between text-zinc-400">
+                <span>Planned Pick Weight (Tons)</span>
+                <span className="text-amber-400 font-bold">{liftWeightInput} Tons</span>
+              </div>
+              <input 
+                type="range"
+                min="20"
+                max={maxAllowableCapacity}
+                value={liftWeightInput}
+                onChange={e => setLiftWeightInput(Number(e.target.value))}
+                className="w-full accent-amber-500" 
+              />
+            </div>
 
-                  <div className="space-y-2 mb-6">
-                    {item.features.map((feat, i) => (
-                      <div key={i} className="flex items-center gap-2 text-xs text-zinc-300 font-mono">
-                        <Check className="w-3.5 h-3.5 text-amber-400 flex-shrink-0" />
-                        <span>{feat}</span>
-                      </div>
-                    ))}
+            <div className="p-3 bg-black border border-zinc-800 rounded-xl flex justify-between items-center">
+              <span className="text-zinc-400">Allowable Load @ {liftRadiusInput}m:</span>
+              <span className="text-lg font-black text-white">{maxAllowableCapacity} Tons</span>
+            </div>
+          </div>
+        </section>
+
+        {/* Right Scrollable Panel: Rigging Specs, OSHA Safety Gate & Certified Lift Plan */}
+        <section className="w-full lg:w-1/2 p-6 sm:p-8 overflow-y-auto space-y-6 bg-[#0A0A0C]">
+          <div>
+            <h2 className="text-xl font-bold text-white flex items-center gap-2">
+              <FileText className="text-amber-400" /> Engineering Specifications & Proof Vault
+            </h2>
+            <p className="text-xs text-zinc-400 mt-0.5">
+              Verified dimensional parameters, outrigger bearing footprint, and crane hoist specifications.
+            </p>
+          </div>
+
+          {/* Technical Specs Table */}
+          <div className="bg-[#12141C] border border-zinc-800 rounded-xl overflow-hidden font-mono text-xs">
+            <div className="p-3 bg-zinc-900/80 border-b border-zinc-800 text-zinc-300 font-bold uppercase tracking-wider">
+              Heavy Lift Configuration Matrix
+            </div>
+            <div className="divide-y divide-zinc-800 text-xs">
+              <div className="flex justify-between p-3.5"><span className="text-zinc-400">Main Telescopic Boom</span><span className="text-white font-bold">{selectedCrane.maxBoomLength}</span></div>
+              <div className="flex justify-between p-3.5"><span className="text-zinc-400">Maximum Tip Height</span><span className="text-white font-bold">{selectedCrane.maxTipHeight}</span></div>
+              <div className="flex justify-between p-3.5"><span className="text-zinc-400">Counterweight Slabs</span><span className="text-amber-400 font-bold">{selectedCrane.counterweight}</span></div>
+              <div className="flex justify-between p-3.5"><span className="text-zinc-400">Outrigger Base Mat Area</span><span className="text-white font-bold">{selectedCrane.outriggerBase}</span></div>
+              <div className="flex justify-between p-3.5"><span className="text-zinc-400">Ground Bearing Pressure</span><span className="text-emerald-400 font-bold">{selectedCrane.specs.groundPressure}</span></div>
+              <div className="flex justify-between p-3.5"><span className="text-zinc-400">Auxiliary Hoist Winch</span><span className="text-white font-bold">{selectedCrane.specs.linePull}</span></div>
+            </div>
+          </div>
+
+          {/* OSHA Safety Signoff Checklist */}
+          <div className="space-y-3 font-mono text-xs">
+            <div className="flex justify-between items-center">
+              <span className="font-bold text-white uppercase tracking-wider flex items-center gap-2">
+                <CheckSquare size={16} className="text-emerald-400" /> Critical Lift Safety Verification Gate
+              </span>
+              <span className="text-emerald-400 font-bold">
+                {checklist.filter(c => c.verified).length} / {checklist.length} Passed
+              </span>
+            </div>
+
+            <div className="space-y-2">
+              {checklist.map((item, idx) => (
+                <div 
+                  key={item.task}
+                  onClick={() => toggleCheck(idx)}
+                  className="flex items-center gap-3 p-3 bg-[#12141C] border border-zinc-800 rounded-xl cursor-pointer hover:border-amber-400/40 transition-all"
+                >
+                  <div className={`w-4 h-4 rounded flex items-center justify-center border ${
+                    item.verified 
+                      ? 'bg-emerald-500 border-emerald-400 text-black' 
+                      : 'border-zinc-700 bg-black'
+                  }`}>
+                    {item.verified && <Check size={12} className="stroke-[3]" />}
                   </div>
+                  <span className={`text-xs ${item.verified ? 'text-zinc-200' : 'text-zinc-500'}`}>{item.task}</span>
                 </div>
-
-                <div className="pt-4 border-t border-zinc-800/80 flex items-center justify-between">
-                  <span className="text-sm font-bold text-amber-400 font-mono">{item.rate}</span>
-                  <a
-                    href="#dispatch"
-                    onClick={() => setSelectedItem(item.id)}
-                    className="px-3 py-1.5 rounded-lg bg-zinc-800 hover:bg-amber-500 hover:text-zinc-950 text-zinc-200 text-xs font-semibold transition"
-                  >
-                    Reserve Unit
-                  </a>
-                </div>
-              </div>
+              ))}
             </div>
-          ))}
-        </div>
-      </section>
-
-      {/* Booking / Dispatch Intake */}
-      <section id="dispatch" className="py-20 px-6 bg-zinc-950 border-t border-zinc-800">
-        <div className="max-w-4xl mx-auto">
-          <div className="text-center mb-12">
-            <span className="text-xs font-mono text-amber-500 uppercase tracking-widest block mb-2">INSTANT BOOKING DISPATCH</span>
-            <h3 className="text-3xl font-extrabold text-white">Reserve Machinery or File Dispatch Mandate</h3>
-            <p className="text-zinc-400 text-sm mt-3">Direct integration into PostgreSQL delivery dispatches with zero friction.</p>
           </div>
 
-          <form onSubmit={handleSubmit} className="p-8 rounded-2xl bg-[#121214] border border-amber-500/20 shadow-2xl space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <label className="block text-sm font-semibold font-mono uppercase text-zinc-400 mb-2">Company / Mandate Entity</label>
-                <input
-                  type="text"
-                  required
-                  value={inquiryName}
-                  onChange={(e) => setInquiryName(e.target.value)}
-                  placeholder="e.g. Apex Infrastructure Partners LLC"
-                  className="w-full px-4 py-3 bg-zinc-900 border border-zinc-700 rounded-xl text-zinc-100 focus:outline-none focus:border-amber-500 text-sm font-sans"
-                />
+          {/* Stamped Lift Plan Dispatch Action */}
+          <div className="pt-4 border-t border-zinc-800 space-y-3 font-mono">
+            {stampedSuccess ? (
+              <div className="p-4 bg-emerald-500/20 border border-emerald-500 text-emerald-400 rounded-xl text-center text-xs font-bold space-y-1">
+                <div>✓ CERTIFIED LIFT PLAN STAMPED & ARCHIVED</div>
+                <div className="text-[11px] text-zinc-300">Digital PE stamp affixed (PE Lic #90214-CA). Dispatch authorized.</div>
               </div>
-              <div>
-                <label className="block text-sm font-semibold font-mono uppercase text-zinc-400 mb-2">Dispatch Contact Direct Line</label>
-                <input
-                  type="tel"
-                  required
-                  value={inquiryPhone}
-                  onChange={(e) => setInquiryPhone(e.target.value)}
-                  placeholder="+1 (555) 019-2834"
-                  className="w-full px-4 py-3 bg-zinc-900 border border-zinc-700 rounded-xl text-zinc-100 focus:outline-none focus:border-amber-500 text-sm font-sans"
-                />
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-sm font-semibold font-mono uppercase text-zinc-400 mb-2">Selected Priority Asset</label>
-              <select
-                value={selectedItem}
-                onChange={(e) => setSelectedItem(e.target.value)}
-                className="w-full px-4 py-3 bg-zinc-900 border border-zinc-700 rounded-xl text-zinc-100 focus:outline-none focus:border-amber-500 text-sm font-sans"
+            ) : (
+              <button
+                onClick={() => setStampedSuccess(true)}
+                disabled={checklist.some(c => !c.verified) || loadPercentage > 100}
+                className="w-full py-4 bg-amber-500 hover:bg-amber-400 disabled:bg-zinc-800 disabled:text-zinc-600 text-black font-black text-sm rounded-xl transition-all shadow-xl shadow-amber-500/20 cursor-pointer min-h-[44px]"
               >
-                {ITEMS.map((item) => (
-                  <option key={item.id} value={item.id}>
-                    {item.id} - {item.title} ({item.rate})
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <button
-              type="submit"
-              className="w-full py-4 rounded-xl bg-amber-500 hover:bg-amber-400 text-zinc-950 font-extrabold text-sm uppercase tracking-wider transition shadow-lg shadow-amber-500/20"
-            >
-              {submitted ? '✓ MANDATE REGISTERED & TRANSMITTED' : 'SUBMIT DISPATCH RESERVATION REQUEST'}
-            </button>
-          </form>
-        </div>
-      </section>
-
-      {/* Footer */}
-      <footer className="py-12 px-6 border-t border-zinc-800 bg-[#0A0A0B] text-zinc-300 text-xs font-mono">
-        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div>
-            <span className="text-zinc-300 font-bold">CRANE & RIGGING OPS OS</span> • Commercial Operating System v1.0.0
+                {loadPercentage > 100 ? 'OVER CAPACITY: ADJUST RADIUS' : 'AFFIX DIGITAL PE STAMP & DISPATCH RIG'}
+              </button>
+            )}
           </div>
-          <div className="flex items-center gap-6">
-            <span>Ghost Factory™ Protocol</span>
-            <span>Supabase RLS Enforced</span>
-            <button
-              onClick={() => setIsAdminOpen(true)}
-              className="text-amber-400 hover:underline"
-            >
-              Admin Portal (crane2026)
-            </button>
-          </div>
-        </div>
-      </footer>
+        </section>
+      </div>
 
-      {/* Admin Modal */}
       <AdminPortalModal isOpen={isAdminOpen} onClose={() => setIsAdminOpen(false)} />
     </div>
   );
